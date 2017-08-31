@@ -1,26 +1,14 @@
 <template>
   <div id="app">
-    <AppHeader></AppHeader>
-    <!-- <img src="./assets/logo.png"> -->
+    <!-- TODO: Insert header here-->
     <router-view></router-view>
-    <AppFooter></AppFooter>
-    <button></button>
-    <button v-on:click.prevent.native="why">Oh my god?</button>
+    <!-- TODO: Insert footer here-->
   </div>
 </template>
 
 <script>
-import AppHeader from './components/AppHeader.vue'
-import AppFooter from './components/AppFooter.vue'
-
 export default {
-  components: {AppHeader, AppFooter},
-  name: 'app',
-  methods: {
-    why: function () {
-      console.log('yoooo')
-    }
-  }
+  name: 'app'
 }
 </script>
 
@@ -31,5 +19,6 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+  margin-top: 60px;
 }
 </style>

@@ -1,35 +1,46 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-// import Hello from '@/components/Hello'
-import Home from '@/layouts/Home'
-import ViewPoll from '@/layouts/ViewPoll'
-import Dashboard from '@/layouts/Dashboard'
-import EditPoll from '@/layouts/EditPoll'
+import Dashboard from '@/components/Dashboard'
+import CreatePoll from '@/components/CreatePoll'
+import ViewPoll from '@/components/ViewPoll'
+import VotePoll from '@/components/VotePoll'
+import SignUp from '@/components/SignUp'
+import LogIn from '@/components/LogIn'
 
 Vue.use(Router)
 
 export default new Router({
-  mode: 'history',
   routes: [
     {
       path: '/',
-      name: 'Home',
-      component: Home
-    },
-    {
-      path: '/pollview',
-      name: 'ViewPoll',
-      component: ViewPoll
-    },
-    {
-      path: '/dash',
       name: 'Dashboard',
       component: Dashboard
     },
     {
-      path: '/edit',
-      name: 'EditPoll',
-      component: EditPoll
+      path: '/create',
+      name: 'Create Poll',
+      component: CreatePoll
+    },
+    {
+      path: '/view',
+      name: 'View Poll',
+      component: ViewPoll
+    },
+    {
+      path: '/vote',
+      name: 'Vote',
+      component: VotePoll
+    },
+    {
+      path: '/signup',
+      name: 'Sign Up',
+      component: SignUp
+    },
+    {
+      path: '/login',
+      name: 'Log In',
+      component: LogIn
     }
+    // TODO: Create route for createpoll
   ]
 })
