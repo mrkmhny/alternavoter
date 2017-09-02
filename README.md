@@ -1,6 +1,8 @@
-# irv
+# AlternaVoter
 
 > A simple instant runoff voting application
+
+See this project live at: [https://alternavoter.netlify.com/](https://alternavoter.netlify.com/)
 
 ## Build Setup
 
