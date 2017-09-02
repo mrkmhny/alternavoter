@@ -6,6 +6,9 @@ import router from './router'
 import store from './store/store'
 import VueResource from 'vue-resource'
 
+// Normalize.css
+import 'normalize.css'
+
 // Firebase
 import firebase from 'firebase'
 import firebaseConfig from '../firebaseConfig'
