@@ -17,12 +17,12 @@ export default {
 
   // Fire these actions automatically whenever app first loads
   created: function () {
-    this.$store.dispatch('getData')
+    this.$store.dispatch('getUserData')
   },
   methods: {
     // TODO: remove this
     debug: function () {
-      this.$store.state.debug = 'nothing important'
+      this.$store.dispatch('getPollsData')
       console.log('debug fired')
     }
   }

@@ -1,9 +1,8 @@
 <template>
   <div class="dash">
-    <button v-on:click="addPoll(editablePoll)">Test function</button
-    <h1>{{msg}}</h1>
+    <button v-on:click="addPoll(editablePoll)">Test function</button>
     <!-- TO DO: make these display owned and other polls -->
-    <pollsTable :polls="polls"></pollsTable>
+    <pollsTable :polls="pollsList">{{pollsList}}</pollsTable>
     <h1>Other polls I've voted on</h1>
     <pollsTable :polls="polls"></pollsTable>
   </div>
@@ -17,24 +16,14 @@ export default {
   components: {pollsTable: pollsTable},
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      pollsList: this.$store.state.pollsList
     }
   },
   computed: {
-    polls () { return this.$store.state.polls },
-    editablePoll () { return this.$store.state.editablePoll }
+    polls: function () { return this.$store.state.pollsList }
   },
-  methods: {
-    getData: function () {
-      console.log('the method is fired')
-      // Triggers getData action in store
-      this.$store.dispatch('getData')
-    },
-    addPoll: function (editablePoll) {
-      console.log(editablePoll)
-      // Triggers addPoll action in store
-      this.$store.dispatch('addPoll', editablePoll)
-    }
+  beforeMount () {
+    console.log(this.pollsList)
   }
 }
 </script>

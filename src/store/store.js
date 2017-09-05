@@ -13,16 +13,15 @@ export default new Vuex.Store({ // eslint-disable-line no-unused-vars
   // TODO: Grab this from a database
   state: {
     user: {
-      userTest: 'hey',
       userId: 'a',
       username: 'mrkmhny',
       email: 'mark.r.mahoney@gmail.com',
-      ownedPolls: [414, 3],
-      votedPolls: [2]
+      ownedPolls: [],
+      votedPolls: []
     },
     currentPoll: {
       // TODO: This will be initialized to blank
-      pollId: '-KtF0Y6JTVk9_eNOKi9M',
+      // pollId: '-KtF0Y6JTVk9_eNOKi9M',
       owner: 'mrkmhnyyyyyyy',
       question: 'Best Color',
       choices: [{choiceName: 'Blue'}, {choiceName: 'Red'}, {choiceName: 'Yellow'}, {choiceName: 'Green'}, {choiceName: 'Purple'}],
@@ -31,7 +30,7 @@ export default new Vuex.Store({ // eslint-disable-line no-unused-vars
       results: {
       }
     },
-    polls: [
+    pollsList: [
       {
         pollId: '4144',
         owner: 'mrkmhny',
@@ -77,12 +76,22 @@ export default new Vuex.Store({ // eslint-disable-line no-unused-vars
     ]
   },
   mutations: {
-    // TODO: SetPolls (don't know if we need this anymore)
-    setPolls: function () {
+    // Clears all of the polls in the pollList
+    clearPollsList: function (state) {
+      state.pollsList = []
+    },
+    // Appends an individual poll to the pollList
+    addToPollsList: function (state, payload) {
+      state.pollsList.push(payload)
     },
     // Sets the users id in the state (typically used when logging in)
-    setUser: function (state, payload) {
-      state.user.userId = payload.userId
+    setUserData: function (state, payload) {
+      if (payload.userId) {
+        state.user.userId = payload.userId
+      }
+      if (payload.ownedPolls) {
+        state.user.ownedPolls = payload.ownedPolls
+      }
       // TODO: Grab the polls that user owns
     },
     // Adds a new poll to the list of user's owned polls
@@ -91,39 +100,42 @@ export default new Vuex.Store({ // eslint-disable-line no-unused-vars
     }
   },
   actions: {
-    getUserData: () => {
-      if (firebase.auth().currentUser) {
-        console.log('a user is logged in')
-      }
-    },
-    getData: (context) => {
+    getUserData: (context) => {
       // Get current user information asyncronously
       firebase.auth().onAuthStateChanged(function (loggedInUser) {
         if (loggedInUser) {
-          var user = loggedInUser
-          // Call setUser mutation with retrieved user info
           // TODO: Add the other user information, not just Id
-          context.commit('setUser', {userId: user.uid})
+          // Call setUser mutation with retrieved user info
+          context.commit('setUserData', {userId: loggedInUser.uid})
+          // Grab the user's owned polls
+          Vue.http.get('https://irv-app.firebaseio.com/users/' +
+          loggedInUser.uid + '.json')
+          .then(function (userData) {
+            // Call setUser mutation with retrieved user info
+            context.commit('setUserData', {ownedPolls: userData.body.ownedPolls})
+          }).catch(function (err) { console.log(err) })
         }
       })
-      // TODO: Use userId to get the owned polls from database
-      // TODO: Finish writing this function
-      Vue.http.get('https://irv-app.firebaseio.com/test.json')
-      .then(function (data) {
-        // TODO: Make this actually do something, instead of just consolelogging
-        console.log('got the data in the store')
-      }).catch(function (err) { console.log(err) })
+    },
+    getPollsData: (context) => {
+      // Start with a fresh, empty pollsList
+      context.commit('clearPollsList')
+      // Iterate through all of user's ownedPolls and add to PollsList
+      for (var i = 0; i < context.state.user.ownedPolls.length; i++) {
+        Vue.http.get('https://irv-app.firebaseio.com/polls/' +
+        context.state.user.ownedPolls[i] + '.json')
+        .then(function (pollData) {
+          context.commit('addToPollsList', pollData.body)
+          console.log('poll added to list')
+        })
+      }
     },
     // Authenticates a user through firebase
     logIn: (context, credentials) => {
       firebase.auth().signInWithEmailAndPassword(credentials.email, credentials.password)
       .then(function (res) {
-        console.log('youre logged in')
-        // Set the current user to this ID
-        context.commit('setUser', {
-          userId: res.uid,
-          username: res.username // TODO: Make sure this is a real res item
-        })
+        // After you're logged in, get user data
+        context.dispatch('getUserData')
         // TODO redirect to dashboard
       }).catch(function (err) { alert(err) })
     },
@@ -157,15 +169,19 @@ export default new Vuex.Store({ // eslint-disable-line no-unused-vars
       if (!pollData.pollId) {
         Vue.http.post('https://irv-app.firebaseio.com/polls.json', pollData)
         .then(function (res) {
-          // TODO: save this new poll as an ownedpoll in the user database
           // Vue.http.post('https://irv-app.firebaseio.com/users.json', )
           console.log('This appears to be new poll')
           /* Send the unique poll key returned by firebase to Vuex
              to store on the user's owned polls */
           context.commit('addToOwned', {pollId: res.body.name})
+          // Save this new poll as an ownedpoll in the user database
+          console.log(context.state.user.userId)
+          Vue.http.put('https://irv-app.firebaseio.com/users/' +
+          context.state.user.userId + '.json', context.state.user)
         }).catch(function (err) { console.log(err) })
       } else { // If this is an existing poll, update it by it's key
-        Vue.http.put('https://irv-app.firebaseio.com/polls/' + pollData.pollId + '.json', pollData)
+        Vue.http.put('https://irv-app.firebaseio.com/polls/' +
+        pollData.pollId + '.json', pollData)
         .then(function () {
           console.log('this appears to be an old poll')
         }).catch(function (err) { console.log(err) })
