@@ -2,7 +2,7 @@
   <div class="dash">
     <button v-on:click="addPoll(editablePoll)">Test function</button
     <h1>{{msg}}</h1>
-    <!-- TO: make these display owned and other polls -->
+    <!-- TO DO: make these display owned and other polls -->
     <pollsTable :polls="polls"></pollsTable>
     <h1>Other polls I've voted on</h1>
     <pollsTable :polls="polls"></pollsTable>

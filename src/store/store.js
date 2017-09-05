@@ -1,6 +1,7 @@
+import firebase from 'firebase'
+
 import Vue from 'vue'
 import Vuex from 'vuex'
-import firebase from 'firebase'
 import VueResource from 'vue-resource'
 Vue.use(VueResource)
 
@@ -12,18 +13,19 @@ export default new Vuex.Store({ // eslint-disable-line no-unused-vars
   // TODO: Grab this from a database
   state: {
     user: {
-      userId: '',
+      userTest: 'hey',
+      userId: 'a',
       username: 'mrkmhny',
       email: 'mark.r.mahoney@gmail.com',
       ownedPolls: [414, 3],
       votedPolls: [2]
     },
-    editablePoll: {
-      // TODO: This will be blank eventually
-      pollId: '414',
-      owner: 'mrkmhny',
+    currentPoll: {
+      // TODO: This will be initialized to blank
+      pollId: '-KtF0Y6JTVk9_eNOKi9M',
+      owner: 'mrkmhnyyyyyyy',
       question: 'Best Color',
-      choices: ['Blue', 'Red', 'Yellow', 'Green', 'Purple'],
+      choices: [{choiceName: 'Blue'}, {choiceName: 'Red'}, {choiceName: 'Yellow'}, {choiceName: 'Green'}, {choiceName: 'Purple'}],
       votes: [
       ],
       results: {
@@ -31,7 +33,7 @@ export default new Vuex.Store({ // eslint-disable-line no-unused-vars
     },
     polls: [
       {
-        pollId: '414',
+        pollId: '4144',
         owner: 'mrkmhny',
         question: 'Best City',
         choices: ['NY', 'LA', 'BO', 'SF', 'DC'],
@@ -81,16 +83,30 @@ export default new Vuex.Store({ // eslint-disable-line no-unused-vars
     // Sets the users id in the state (typically used when logging in)
     setUser: function (state, payload) {
       state.user.userId = payload.userId
-      state.user.userId = payload.userId
       // TODO: Grab the polls that user owns
     },
     // Adds a new poll to the list of user's owned polls
-    addToOwned: function () {
-      console.log(this.state.user.ownedPolls)
+    addToOwned: function (state, payload) {
+      state.user.ownedPolls.push(payload.pollId)
     }
   },
   actions: {
-    getData: () => {
+    getUserData: () => {
+      if (firebase.auth().currentUser) {
+        console.log('a user is logged in')
+      }
+    },
+    getData: (context) => {
+      // Get current user information asyncronously
+      firebase.auth().onAuthStateChanged(function (loggedInUser) {
+        if (loggedInUser) {
+          var user = loggedInUser
+          // Call setUser mutation with retrieved user info
+          // TODO: Add the other user information, not just Id
+          context.commit('setUser', {userId: user.uid})
+        }
+      })
+      // TODO: Use userId to get the owned polls from database
       // TODO: Finish writing this function
       Vue.http.get('https://irv-app.firebaseio.com/test.json')
       .then(function (data) {
@@ -99,22 +115,61 @@ export default new Vuex.Store({ // eslint-disable-line no-unused-vars
       }).catch(function (err) { console.log(err) })
     },
     // Authenticates a user through firebase
-    logIn: (context, payload) => {
-      // If no user credentials are included, log in as guest
-      if (!payload) {
-        firebase.auth().signInAnonymously()
-        .then((res) => {
-          alert('You have created a guest account!')
-          // Set the current user to this ID
-          context.commit('setUser', {userId: res.uid})
-        }).catch(function (err) { alert(err) })
-      } else {
-      // If user credentials are included, log in as that user
-        firebase.auth().signInWithEmailAndPassword(payload.email, payload.password)
+    logIn: (context, credentials) => {
+      firebase.auth().signInWithEmailAndPassword(credentials.email, credentials.password)
+      .then(function (res) {
+        console.log('youre logged in')
+        // Set the current user to this ID
+        context.commit('setUser', {
+          userId: res.uid,
+          username: res.username // TODO: Make sure this is a real res item
+        })
+        // TODO redirect to dashboard
+      }).catch(function (err) { alert(err) })
+    },
+    logOut: (context) => {
+      // Log out user from firebase
+      firebase.auth().signOut()
+      .then(function (res) {
+        console.log('Youre logged out')
+        // Remove the user data from state
+        context.commit('setUser', {
+          userId: 'none',
+          username: 'none' // TODO: Make sure this is a real res item
+        })
+        // Create a new guest account so activity can still be tracked
+        context.dispatch('logInAsGuest')
+      }).catch(function (err) { alert(err) })
+    },
+    logInAsGuest: (context) => {
+      firebase.auth().signInAnonymously()
+      .then((res) => {
+        console.log('You have created a guest account!')
+        // Set the current user to this ID
+        context.commit('setUser', {
+          userId: res.uid,
+          username: 'Guest'
+        })
+      }).catch(function (err) { alert(err) })
+    },
+    submitPoll: (context, pollData) => {
+      // If this is a new poll create a new entry in the database
+      if (!pollData.pollId) {
+        Vue.http.post('https://irv-app.firebaseio.com/polls.json', pollData)
         .then(function (res) {
-          // Set the current user to this ID
-          context.commit('setUser', {userId: res.uid})
-        }).catch(function (err) { alert(err) })
+          // TODO: save this new poll as an ownedpoll in the user database
+          // Vue.http.post('https://irv-app.firebaseio.com/users.json', )
+          console.log('This appears to be new poll')
+          /* Send the unique poll key returned by firebase to Vuex
+             to store on the user's owned polls */
+          context.commit('addToOwned', {pollId: res.body.name})
+        }).catch(function (err) { console.log(err) })
+      } else { // If this is an existing poll, update it by it's key
+        Vue.http.put('https://irv-app.firebaseio.com/polls/' + pollData.pollId + '.json', pollData)
+        .then(function () {
+          console.log('this appears to be an old poll')
+        }).catch(function (err) { console.log(err) })
+        // TODO: Redirect to dashboard
       }
     }
     /*,

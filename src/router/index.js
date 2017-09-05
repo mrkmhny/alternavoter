@@ -22,7 +22,7 @@ export default new Router({
       component: CreatePoll
     },
     {
-      path: '/view',
+      path: '/view/:pollId',
       name: 'View Poll',
       component: ViewPoll
     },

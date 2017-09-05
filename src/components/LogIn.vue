@@ -4,6 +4,7 @@
     <input type="text" name="email" placeholder="Email" v-model="credentials.email">
     <input type="password" name="password" placeholder="Password" v-model="credentials.password">
     <button v-on:click="logIn(credentials.email, credentials.password)">Log in</button>
+    <button v-on:click="logInAsGuest()">Continue as Guest</button>
   </div>
 </template>
 
@@ -24,6 +25,9 @@ export default {
     // Authenticates user based on entered credentials
     logIn: function (email, password) {
       this.$store.dispatch('logIn', {email: email, password: password})
+    },
+    logInAsGuest: function () {
+      this.$store.dispatch('logInAsGuest')
     }
   }
 }

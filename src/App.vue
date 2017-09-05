@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <NavBar></NavBar>
+    <button v-on:click="debug">debug</button>
     <router-view></router-view>
     <!-- TODO: Insert footer here-->
   </div>
@@ -8,10 +9,23 @@
 
 <script>
 import NavBar from './components/NavBar.vue'
+// import firebase from 'firebase'
 
 export default {
   components: {NavBar},
-  name: 'app'
+  name: 'app',
+
+  // Fire these actions automatically whenever app first loads
+  created: function () {
+    this.$store.dispatch('getData')
+  },
+  methods: {
+    // TODO: remove this
+    debug: function () {
+      this.$store.state.debug = 'nothing important'
+      console.log('debug fired')
+    }
+  }
 }
 </script>
 

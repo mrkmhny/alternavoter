@@ -38,19 +38,16 @@
 </template>
 
 <script>
+// This should really be editPoll, and the data that it's populated should either be blank for new polls or populated for existing polls
+
 export default {
   data () {
     return {
-      editablePoll: {
-        question: 'test',
-        choices: [{choiceName: 'a'}, {choiceName: 'b'}, {choiceName: 'c'}],
-        votes: [],
-        results: []
-      }
+      editablePoll: this.$store.state.currentPoll
     }
   },
   methods: {
-    // Adds a poll from the choices array
+    // Adds a poll to the choices array
     addEditableChoice: function () {
       this.editablePoll.choices.push({choiceName: ''})
     },
@@ -59,17 +56,16 @@ export default {
       this.editablePoll.choices.splice(index, 1)
     },
     // Submits this poll to the database
-    submitPoll: function (newPoll) {
-      this.$http.post('https://irv-app.firebaseio.com/polls.json', newPoll)
-      .then(function (res) {
-        console.log(res.body.name)
-        /* Sends the unique poll key returned by firebase to Vuex
-           to store on the user's owned polls */
-        this.$store.dispatch('logIn', 'test')
-      }).catch(function (err) { console.log(err) })
+    submitPoll: function (pollData) {
+      console.log('CreatePoll component dispatching submitPoll action')
+      this.$store.dispatch('submitPoll', pollData)
     }
   },
   computed: {
+    currentPoll: function () {
+      // TODO: make this currentPoll, not user
+      return this.$store.state.user.userTest
+    },
     // Confirms that poll has three choices: return a boolean
     hasThreeChoices: function () {
       var numberOfChoices = 0
