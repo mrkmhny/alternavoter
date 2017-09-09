@@ -1,24 +1,25 @@
 <template>
   <div class="create-poll">
+    <h1>Create a Poll</h1>
     <form>
       <label for="question">Question</label>
-      <input type="text" name="question" v-model="editablePoll.question" placeholder="Question">
+      <input class="question-input" type="text" name="question" v-model="editablePoll.question" placeholder="Question">
       <!-- Only displays if entered question is falsey-->
       <p class="err" v-show="!editablePoll.question">
         You must enter a question
       </p>
-      <div>Choices</div>
+      <label class="choices-label">Choices</label>
       <table>
         <tr v-for='(choice, index) in editablePoll.choices'>
           <td>
-            <button v-on:click.prevent="removeEditableChoice(index)" name="remove" tabindex="-1">Remove Choice</button>
+            <button class="remove-choice" v-on:click.prevent="removeEditableChoice(index)" name="remove" tabindex="-1">Remove Choice</button>
           </td>
           <td>
             <input type="text" v-model="choice.choiceName">
           </td>
         </tr>
         <tr>
-          <button v-on:click.prevent="addEditableChoice">Add Choice</button>
+          <button class="add-choice" v-on:click.prevent="addEditableChoice">Add Choice</button>
         </tr>
       </table>
       <!-- Only displays if poll has < 3 choices-->
@@ -59,6 +60,7 @@ export default {
     submitPoll: function (pollData) {
       console.log('CreatePoll component dispatching submitPoll action')
       this.$store.dispatch('submitPoll', pollData)
+      this.$router.push('/view')
     }
   },
   computed: {
@@ -91,6 +93,11 @@ export default {
 
 <style scoped>
 
+  .create-poll {
+    max-width:500px;
+    margin:auto;
+  }
+
   .create-poll form {
     display: flex;
     align-items: flex-start;
@@ -99,11 +106,46 @@ export default {
     width:70%;
   }
 
+  .question-input {
+    margin-bottom: 10px;
+  }
+
+  .create-poll .choices-label {
+
+  }
+
   .create-poll table {
-    margin:20px 0;
+    margin:0 0 20px 0;
+  }
+
+  td {
+    width: 200px;
+  }
+
+  button {
+    width:100%;
+    border-radius: 5px;
+    border:none;
+    outline: none;
+  }
+
+  .remove-choice {
+    background: tomato;
+    color: white;
+  }
+
+  .add-choice {
+    background: limegreen;
+    border:none;
+    color:white;
   }
 
   .create-poll .err {
     color:tomato;
+  }
+
+  .submit {
+    color: white;
+    background: skyblue;
   }
 </style>

@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Dashboard from '@/components/Dashboard'
+import Home from '@/components/Home'
+// import Dashboard from '@/components/Dashboard'
 import CreatePoll from '@/components/CreatePoll'
 import ViewPoll from '@/components/ViewPoll'
 import VotePoll from '@/components/VotePoll'
@@ -13,8 +14,8 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'Dashboard',
-      component: Dashboard
+      name: 'Home',
+      component: Home
     },
     {
       path: '/create',

@@ -13,9 +13,9 @@ export default new Vuex.Store({ // eslint-disable-line no-unused-vars
   // TODO: Grab this from a database
   state: {
     user: {
-      userId: 'a',
+      userId: '',
       username: 'mrkmhny',
-      email: 'mark.r.mahoney@gmail.com',
+      userEmail: 'a',
       ownedPolls: [],
       votedPolls: []
     },
@@ -145,7 +145,7 @@ export default new Vuex.Store({ // eslint-disable-line no-unused-vars
       .then(function (res) {
         console.log('Youre logged out')
         // Remove the user data from state
-        context.commit('setUser', {
+        context.commit('setUserData', {
           userId: 'none',
           username: 'none' // TODO: Make sure this is a real res item
         })
@@ -158,7 +158,7 @@ export default new Vuex.Store({ // eslint-disable-line no-unused-vars
       .then((res) => {
         console.log('You have created a guest account!')
         // Set the current user to this ID
-        context.commit('setUser', {
+        context.commit('setUserData', {
           userId: res.uid,
           username: 'Guest'
         })

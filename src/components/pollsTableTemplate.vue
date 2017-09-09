@@ -7,8 +7,8 @@
         <th>Current Winner</th>
       </tr>
       <tr v-for="poll in polls">
-        <td>{{poll.question}}</td>
-        <td>{{poll.votes.length}}</td>
+        <td><router-link to="view">{{poll.question}}</router-link></td>
+        <td>{{poll.choices.length}}</td>
         <td>Not yet calculated</td>
       </tr>
     </table>
