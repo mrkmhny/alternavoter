@@ -3,6 +3,8 @@ import firebase from 'firebase'
 import Vue from 'vue'
 import Vuex from 'vuex'
 import VueResource from 'vue-resource'
+import router from '../router'
+
 Vue.use(VueResource)
 
 // Use Vuex plugin
@@ -22,13 +24,13 @@ export default new Vuex.Store({ // eslint-disable-line no-unused-vars
     currentPoll: {
       // TODO: This will be initialized to blank
       // pollId: '-KtF0Y6JTVk9_eNOKi9M',
-      owner: 'mrkmhnyyyyyyy',
+      // owner: 'mrkmhny',
       question: 'Best Color',
-      choices: [{choiceName: 'Blue'}, {choiceName: 'Red'}, {choiceName: 'Yellow'}, {choiceName: 'Green'}, {choiceName: 'Purple'}],
-      votes: [
-      ],
-      results: {
-      }
+      choices: [{choiceName: 'Blue'}, {choiceName: 'Red'}, {choiceName: 'Yellow'}, {choiceName: 'Green'}, {choiceName: 'Purple'}]
+      // votes: [
+      // ],
+      // results: {
+      // }
     },
     pollsList: [
       {
@@ -97,6 +99,9 @@ export default new Vuex.Store({ // eslint-disable-line no-unused-vars
     // Adds a new poll to the list of user's owned polls
     addToOwned: function (state, payload) {
       state.user.ownedPolls.push(payload.pollId)
+    },
+    setCurrentPoll: function (state, payload) {
+      state.currentPoll = payload.pollData
     }
   },
   actions: {
@@ -129,6 +134,15 @@ export default new Vuex.Store({ // eslint-disable-line no-unused-vars
           console.log('poll added to list')
         })
       }
+    },
+    // Grab one poll from database
+    getPollData: (context, pollId) => {
+      Vue.http.get('https://irv-app.firebaseio.com/polls/' +
+      pollId + '.json')
+      .then(function (pollData) {
+        context.commit('setCurrentPoll', {pollData: pollData.body})
+        console.log('set current poll')
+      })
     },
     // Authenticates a user through firebase
     logIn: (context, credentials) => {
@@ -175,15 +189,16 @@ export default new Vuex.Store({ // eslint-disable-line no-unused-vars
              to store on the user's owned polls */
           context.commit('addToOwned', {pollId: res.body.name})
           // Save this new poll as an ownedpoll in the user database
-          console.log(context.state.user.userId)
           Vue.http.put('https://irv-app.firebaseio.com/users/' +
-          context.state.user.userId + '.json', context.state.user)
+                        context.state.user.userId + '.json', context.state.user)
+          router.push('/view/' + res.body.name)
         }).catch(function (err) { console.log(err) })
       } else { // If this is an existing poll, update it by it's key
         Vue.http.put('https://irv-app.firebaseio.com/polls/' +
         pollData.pollId + '.json', pollData)
-        .then(function () {
+        .then(function (res) {
           console.log('this appears to be an old poll')
+          router.push('/view/' + res.body.name)
         }).catch(function (err) { console.log(err) })
         // TODO: Redirect to dashboard
       }

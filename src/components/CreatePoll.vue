@@ -44,7 +44,14 @@
 export default {
   data () {
     return {
-      editablePoll: this.$store.state.currentPoll
+      editablePoll: {
+        question: '',
+        choices: [{choiceName: ''}, {choiceName: ''}, {choiceName: ''}],
+        votes: [
+        ],
+        results: {
+        }
+      }
     }
   },
   methods: {
@@ -60,7 +67,6 @@ export default {
     submitPoll: function (pollData) {
       console.log('CreatePoll component dispatching submitPoll action')
       this.$store.dispatch('submitPoll', pollData)
-      this.$router.push('/view')
     }
   },
   computed: {
@@ -142,6 +148,8 @@ export default {
 
   .create-poll .err {
     color:tomato;
+    text-align: center;
+    width:100%;
   }
 
   .submit {
