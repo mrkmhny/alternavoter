@@ -12,14 +12,14 @@
       <table>
         <tr v-for='(choice, index) in editablePoll.choices'>
           <td>
-            <button class="remove-choice" v-on:click.prevent="removeEditableChoice(index)" name="remove" tabindex="-1">Remove Choice</button>
+            <button class="remove-choice" v-on:click.prevent="removeEditableChoice(index)" name="remove" tabindex="-1">Remove</button>
           </td>
           <td>
-            <input type="text" v-model="choice.choiceName">
+            <input type="text" v-model="choice.choiceName" placeholder="Choice">
           </td>
         </tr>
         <tr>
-          <button class="add-choice" v-on:click.prevent="addEditableChoice">Add Choice</button>
+          <button class="add-choice" v-on:click.prevent="addEditableChoice">Add</button>
         </tr>
       </table>
       <!-- Only displays if poll has < 3 choices-->
@@ -30,7 +30,7 @@
       <p class="err" v-show="!choicesAreUnique">
         All choices must be unique
       </p>
-      <button class="submit" v-on:click.prevent="submitPoll(editablePoll)"
+      <button class="submit" v-on:click.prevent="createPoll(editablePoll)"
       :disabled="!hasThreeChoices || !editablePoll.question" type="button" name="submit">
         Create Poll
       </button>
@@ -64,9 +64,9 @@ export default {
       this.editablePoll.choices.splice(index, 1)
     },
     // Submits this poll to the database
-    submitPoll: function (pollData) {
-      console.log('CreatePoll component dispatching submitPoll action')
-      this.$store.dispatch('submitPoll', pollData)
+    createPoll: function (pollData) {
+      console.log('CreatePoll component dispatching createPoll action')
+      this.$store.dispatch('createPoll', pollData)
     }
   },
   computed: {
@@ -155,5 +155,9 @@ export default {
   .submit {
     color: white;
     background: skyblue;
+  }
+
+  .submit:hover {
+    background: lightskyblue;
   }
 </style>

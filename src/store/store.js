@@ -102,6 +102,8 @@ export default new Vuex.Store({ // eslint-disable-line no-unused-vars
     },
     setCurrentPoll: function (state, payload) {
       state.currentPoll = payload.pollData
+      state.currentPoll.pollId = payload.pollId
+      console.log('current poll set')
     }
   },
   actions: {
@@ -136,12 +138,18 @@ export default new Vuex.Store({ // eslint-disable-line no-unused-vars
       }
     },
     // Grab one poll from database
-    getPollData: (context, pollId) => {
-      Vue.http.get('https://irv-app.firebaseio.com/polls/' +
-      pollId + '.json')
-      .then(function (pollData) {
-        context.commit('setCurrentPoll', {pollData: pollData.body})
-        console.log('set current poll')
+    getPollData (context, pollId) {
+      return new Promise((resolve, reject) => {
+        Vue.http.get('https://irv-app.firebaseio.com/polls/' +
+        pollId + '.json')
+        .then(function (pollData) {
+          console.log('Received poll data')
+          context.commit('setCurrentPoll', {
+            pollData: pollData.body,
+            pollId: pollId
+          })
+          resolve()
+        }).catch(function (err) { console.log(`Error with getPollData ${err}`) })
       })
     },
     // Authenticates a user through firebase
@@ -178,7 +186,7 @@ export default new Vuex.Store({ // eslint-disable-line no-unused-vars
         })
       }).catch(function (err) { alert(err) })
     },
-    submitPoll: (context, pollData) => {
+    createPoll: (context, pollData) => {
       // If this is a new poll create a new entry in the database
       if (!pollData.pollId) {
         Vue.http.post('https://irv-app.firebaseio.com/polls.json', pollData)
@@ -202,6 +210,14 @@ export default new Vuex.Store({ // eslint-disable-line no-unused-vars
         }).catch(function (err) { console.log(err) })
         // TODO: Redirect to dashboard
       }
+    },
+    castVote: (context, ballot) => {
+      Vue.http.post('https://irv-app.firebaseio.com/polls/' +
+     context.state.currentPoll.pollId + '/results.json', ballot)
+      .then(function (res) {
+        console.log('omg it was submitted')
+        console.log(res)
+      }).catch(function (err) { console.log(err) })
     }
     /*,
     // Adds a new poll to the list of the user's owned polls
