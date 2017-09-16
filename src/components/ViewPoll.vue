@@ -2,15 +2,16 @@
   <div class="view-poll">
     <h3 class="question">Question: {{currentPoll.question}}</h3>
     <div class="choices">
-      <div class="row-labels">
+      <div class="row row-labels">
         <div class="rank-label col-rank">Rank</div>
         <div class="choices-label col-choice">Choices</div>
       </div>
-      <div class="row-choice" v-for="choice in currentChoices">
-        <input class="rank-select col-rank" type="number" min="0" v-model="choice.preference">
+      <div class="row row-choice" v-for="choice in currentChoices">
+        <input class="rank-select col-rank" type="number" min="0" v-bind:max="currentChoices.length" v-model="choice.preference">
         <div class="choice-name col-choice">{{choice.choiceName}}</div>
       </div>
     </div>
+    <h1>{{ballot}}</h1>
     <button v-on:click="castVote" class="cast-vote">Cast Vote</button>
   </div>
 
@@ -22,13 +23,6 @@ export default {
   data () {
     return {
       currentPoll: {},
-      otherPoll: {
-        choices: [
-          { choiceName: 'a choice', preference: 0 },
-          { choiceName: 'a choice', preference: 0 },
-          { choiceName: 'a choice', preference: 0 }
-        ]
-      },
       currentChoices: []
     }
   },
@@ -40,10 +34,10 @@ export default {
       // Create a list of choices using the choices from the current poll
       this.currentPoll = this.$store.state.currentPoll
       // Initialize preferences to 0
-      for (var each in this.currentPoll.choices) {
+      for (var i = 0; i < this.$store.state.currentPoll.choices.length; i++) {
         this.currentChoices.push({
-          choiceName: this.currentPoll.choices[each].choiceName,
-          preference: 0
+          choiceName: this.$store.state.currentPoll.choices[i].choiceName,
+          preference: ''
         })
       }
     }).catch(function (err) {
@@ -56,9 +50,25 @@ export default {
     }
   },
   computed: {
-    results: function () {
-      for (var each in this.currentPoll.choices) {
-        this.currentPoll.choices[each].preference = 1
+    ballot: function () {
+      var ranking = []
+      // Start from rank 1, and move up until we've searched for all possible ranks
+      for (var rank = 1; rank <= this.currentChoices.length; rank++) {
+        // find the choice that matches with that rank
+        var selection = this.currentChoices.filter(function (item) {
+          return (parseInt(item.preference) === rank)
+        })
+        // If one was found, add it to the ballot list
+        if (selection[0]) {
+          ranking.push(selection[0].choiceName)
+        }
+      }
+      // Return the ballot object
+      return {ranking}
+    },
+    ranksAreUnique: function () {
+      for (var i = 0; i < this.currentChoices.length; i++) {
+        // TODO: Make sure the ranks are unique
       }
     }
   }
@@ -70,6 +80,11 @@ export default {
   .view-poll {
     width:50%;
     margin: 0 auto;
+  }
+
+  .row {
+    width:50%;
+    margin: auto;
   }
 
   .row-labels {
@@ -90,7 +105,7 @@ export default {
 
   .col-rank {
     width:30px;
-    margin-left: 50px;
+    margin-left: 10px;
   }
 
   .col-choice {
@@ -109,7 +124,8 @@ export default {
   }
 
   .cast-vote {
-    width:100%;
+    width:90px;
+    margin-top: 10px;
     border-radius: 5px;
     border:none;
     outline: none;
