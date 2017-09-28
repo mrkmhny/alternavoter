@@ -1,32 +1,43 @@
 <template lang="html">
   <div class="view-poll">
-    <h3 class="question">Question: {{currentPoll.question}}</h3>
-    <div class="choices">
-      <div class="row row-labels">
-        <div class="rank-label col-rank">Rank</div>
-        <div class="choices-label col-choice">Choices</div>
+    <div v-if="!userHasVoted" class="poll-vote-form">
+      <h3 class="question">Question: {{currentPoll.question}}</h3>
+      <div class="choices">
+        <div class="row row-labels">
+          <div class="rank-label col-rank">Rank</div>
+          <div class="choices-label col-choice">Choices</div>
+        </div>
+        <div class="row row-choice" v-for="choice in currentChoices">
+          <input class="rank-select col-rank" type="number" min="0" v-bind:max="currentChoices.length" v-model="choice.preference">
+          <div class="choice-name col-choice">{{choice.choiceName}}</div>
+        </div>
       </div>
-      <div class="row row-choice" v-for="choice in currentChoices">
-        <input class="rank-select col-rank" type="number" min="0" v-bind:max="currentChoices.length" v-model="choice.preference">
-        <div class="choice-name col-choice">{{choice.choiceName}}</div>
-      </div>
+      <h1>{{ballot}}</h1>
+      <button v-on:click="castVote" class="cast-vote">Cast Vote</button>
     </div>
-    <h1>{{ballot}}</h1>
-    <button v-on:click="castVote" class="cast-vote">Cast Vote</button>
+
+    <div v-if="userHasVoted" class="poll-results">
+      <h1>Poll Results</h1>
+      <Results></Results>
+    </div>
   </div>
-
-
 </template>
 
 <script>
+import Results from './Results'
+
 export default {
+  components: { Results },
   data () {
     return {
       currentPoll: {},
-      currentChoices: []
+      currentChoices: [],
+      userHasVoted: false
     }
   },
   beforeMount: function () {
+    // Check if user already voted
+    this.userHasVoted = this.checkIfUserVoted()
     // Before loading, get the Poll data from the DB for this particular poll
     this.$store.dispatch('getPollData', this.$route.params.pollId)
     .then(() => {
@@ -40,13 +51,23 @@ export default {
           preference: ''
         })
       }
-    }).catch(function (err) {
-      console.log(`Error in ViewPoll: ${err}`)
     })
+    .catch(function (err) { console.log(`Error in ViewPoll: ${err}`) })
   },
   methods: {
     castVote: function () {
-      this.$store.dispatch('castVote', {test: '1'})
+      if (!this.userHasVoted) {
+        this.userHasVoted = true
+        this.$store.dispatch('castVote', this.ballot)
+        console.log('vote was casted')
+      }
+    },
+    checkIfUserVoted: function () {
+      if (localStorage[this.$route.params.pollId] === 'voted') {
+        return true
+      } else {
+        return false
+      }
     }
   },
   computed: {
@@ -77,7 +98,7 @@ export default {
 
 <style>
 
-  .view-poll {
+  .poll-vote-form {
     width:50%;
     margin: 0 auto;
   }

@@ -215,8 +215,10 @@ export default new Vuex.Store({ // eslint-disable-line no-unused-vars
       Vue.http.post('https://irv-app.firebaseio.com/polls/' +
      context.state.currentPoll.pollId + '/results.json', ballot)
       .then(function (res) {
-        console.log('omg it was submitted')
+        // Store that user has voted on this poll
+        localStorage[context.state.currentPoll.pollId] = 'voted'
         console.log(res)
+        console.log(localStorage[context.state.currentPoll.pollId])
       }).catch(function (err) { console.log(err) })
     }
     /*,

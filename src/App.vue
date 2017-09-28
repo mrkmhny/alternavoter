@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <NavBar></NavBar>
-    <button v-on:click="debug">debug</button>
+    <!--<NavBar></NavBar>-->
+    <!--<button v-on:click="debug">debug</button>-->
     <router-view></router-view>
     <!-- TODO: Insert footer here-->
   </div>

@@ -7,6 +7,7 @@ import ViewPoll from '@/components/ViewPoll'
 import VotePoll from '@/components/VotePoll'
 import SignUp from '@/components/SignUp'
 import LogIn from '@/components/LogIn'
+import Results from '@/components/Results'
 
 Vue.use(Router)
 
@@ -26,6 +27,11 @@ export default new Router({
       path: '/view/:pollId',
       name: 'View Poll',
       component: ViewPoll
+    },
+    {
+      path: '/results:pollId',
+      name: 'View Results',
+      component: Results
     },
     {
       path: '/vote',
